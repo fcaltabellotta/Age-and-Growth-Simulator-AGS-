@@ -22,11 +22,9 @@
 	options(mc.cores = parallel::detectCores())
 	rstan_options(auto_write = TRUE)
 
-	setwd("/Users/fabiocaltabellotta/Documents/Projects/Age_Growth_Bias/")
 	source("age_simulator_fn.R", local = FALSE)
 	source("growth_stan_model.R", local = FALSE)
-	source("vbgm_stan_fn_true.R", local=FALSE)
-	source("vbgm_stan_fn_df.R", local=FALSE)
+	source("vbgm_stan_fn.R", local=FALSE)
 
 	###-----------------------------------------------------
 	
@@ -44,15 +42,8 @@
 	ages = 0:(nage-1)
 
 	#----------------------------------------------------
-	#		        Simulating Scenarios
+	#		Simulating Scenarios
 	#-----------------------------------------------------
-
-	#no_cores <- detectCores()  
-	#cl <- makeCluster(no_cores, type="FORK")  
-	#registerDoParallel(cl) 
-
-#scenario <- function(nobs=nobs){ 
-	#system.time({
 	
 	sim_unbiased <- foreach(sigma=rep(c(0.02,0.05,0.10),10)) %do% age_sim(sel_l50 = c(0,1),
 						  nobs = 200,
@@ -115,10 +106,3 @@ system.time({
 				bloated_fit[[i]] <- vbgm_stan_fn(sim_bloated[[i]], par=sim_bloated[[i]]$par, model="t0")
 			}	
 	})
-
-	#results <- c(sim_unbiased=sim_unbiased,sim_nsmall=sim_nsmall,sim_nlarge=sim_nlarge,sim_bloated=sim_bloated,unbiased_fit=unbiased_fit,nsmall_fit=nsmall_fit,nlarge_fit=nlarge_fit,bloated_fit=bloated_fit)
-	#return(results)
-	#save(results, file = "results.Rdata")
-#}
-
-	save(sim_unbiased,sim_nsmall,sim_nlarge,sim_bloated,unbiased_fit,nsmall_fit,nlarge_fit,bloated_fit, file = "scenarios_200_10.Rdata")
