@@ -1,8 +1,8 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #                                                     #
-#    		   Growth_Stan_Model                      #         
-#		                                              #
+#    		   Growth_Stan_Model                  #         
+#		                                      #
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -95,8 +95,8 @@
 			                 n_pred = nrow(sim_dat$true.len),
 			                 p_age = sim_dat$true.len$age,
 			                 t_len = sim_dat$true.len$len,
-							 nseq = length(seq(0.1,max(sim_dat$df$ages),by=0.1)),
-							 seq_ages = seq(0.1,max(sim_dat$df$ages),by=0.1))
+					 nseq = length(seq(0.1,max(sim_dat$df$ages),by=0.1)),
+					 seq_ages = seq(0.1,max(sim_dat$df$ages),by=0.1))
 		#run the model
 			if(model=="t0"){
 				vbgm_stan_fit <- sampling(object = vbgm_stan,
