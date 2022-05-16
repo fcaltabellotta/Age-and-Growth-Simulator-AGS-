@@ -1,7 +1,7 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #                                                     #
-#    		   Age-growth Bias Simulator          #         
+#    		Age-growth Bias Simulator      	      #         
 #		                                      #
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -43,74 +43,81 @@ ages = 0:(nage-1)
 #----------------------------------------------------
 #		Simulating Scenarios
 #-----------------------------------------------------
+	
+scenarios_fit <- function(reps=1,nobs=1){
 
+	## number of simulations 
+	nsim = reps*3
+	## simulation scenarios
+	unbiased_sim <- vector(mode="list", length = nsim)
+	nsmall_sim <- vector(mode="list", length = nsim)
+	nlarge_sim <- vector(mode="list", length = nsim)
+	bloated_sim <- vector(mode="list", length = nsim)
+	## fit scenarios
+	unbiased_fit <- vector(mode="list", length = nsim)
+	nsmall_fit <- vector(mode="list", length = nsim)
+	nlarge_fit <- vector(mode="list", length = nsim)
+	bloated_fit <- vector(mode="list", length = nsim)
 
-scenario <- function(nobs=nobs){ 
-	system.time({
-	sim_unbiased <- foreach(sigma=rep(c(0.02,0.05,0.10),10)) %do% age_sim(sel_l50 = c(0,1),
-						  nobs = 200,
-						  slope1 = 1, 
-					      slope2 = 1,
-						  max.sel = 1,
-						  min.sel = 1,
-					      par = par, 
-	                      model = 't0',
-	                      proc.form = 'lnorm',
-	                      sig_growth = sigma*par[1], 
-						  plot = FALSE)
+system.time({		
+	sim_unbiased <- foreach(sigma=rep(c(0.02,0.05,0.10),reps)) %do% age_sim(sel_l50 = c(0,1),
+					nobs = nobs,
+					slope1 = 1, 
+					slope2 = 1,
+					max.sel = 1,
+					min.sel = 1,
+					par = par, 
+	                      		model = 't0',
+	                      		proc.form = 'lnorm',
+	                     		sig_growth = sigma*par[1], 
+					plot = FALSE)
 
-	sim_nsmall <- foreach(sigma=rep(c(0.02,0.05,0.10),10)) %do% age_sim(sel_l50 = c(0.7,1),
-						  nobs = 200,
-						  slope1 = 1, 
-						  slope2 = 1,
-						  max.sel = 1,
-						  min.sel = 1,
-						  par = par, 
-	                      model = 't0',
-	                      proc.form = 'lnorm',
-	                      sig_growth = sigma*par[1], 
-						  plot = FALSE)
+	sim_nsmall <- foreach(sigma=rep(c(0.02,0.05,0.10),reps)) %do% age_sim(sel_l50 = c(0.7,1),
+					nobs = nobs,
+					slope1 = 1, 
+					slope2 = 1,
+					max.sel = 1,
+					min.sel = 1,
+					par = par, 
+	                      		model = 't0',
+	                      		proc.form = 'lnorm',
+	                      		sig_growth = sigma*par[1], 
+					plot = FALSE)
 
-	sim_nlarge <- foreach(sigma=rep(c(0.02,0.05,0.10),10)) %do% age_sim(sel_l50 = c(0,0.7),
-						  nobs = 200,
-						  slope1 = 1, 
-						  slope2 = 1,
-						  max.sel = 1,
-						  min.sel = 0,
-						  par = par, 
-	                      model = 't0',
-	                      proc.form = 'lnorm',
-	                      sig_growth = sigma*par[1], 
-						  plot = FALSE)
+	sim_nlarge <- foreach(sigma=rep(c(0.02,0.05,0.10),reps)) %do% age_sim(sel_l50 = c(0,0.7),
+					nobs = nobs,
+					slope1 = 1, 
+					slope2 = 1,
+					max.sel = 1,
+					min.sel = 0,
+					par = par, 
+	                      		model = 't0',
+	                      		proc.form = 'lnorm',
+	                      		sig_growth = sigma*par[1], 
+					plot = FALSE)
 
-	sim_bloated <- foreach(sigma=rep(c(0.02,0.05,0.10),10)) %do% age_sim(sel_l50 = c(0.55,0.85),
-						  nobs = 200,
-						  slope1 = 1, 
-						  slope2 = 1,
-						  max.sel = 1,
-						  min.sel = 0,
-						  par = par, 
-	                      model = 't0',
-	                      proc.form = 'lnorm',
-	                      sig_growth = sigma*par[1], 
-						  plot = FALSE)
+	sim_bloated <- foreach(sigma=rep(c(0.02,0.05,0.10),reps)) %do% age_sim(sel_l50 = c(0.55,0.85),
+					nobs = nobs,
+					slope1 = 1, 
+					slope2 = 1,
+					max.sel = 1,
+					min.sel = 0,
+					par = par, 
+	                      		model = 't0',
+	                      		proc.form = 'lnorm',
+	                      		sig_growth = sigma*par[1], 
+					plot = FALSE)
 
-		unbiased_fit <- vector(mode="list", length = length(sim_unbiased))
-		nsmall_fit <- vector(mode="list", length = length(sim_nsmall))
-		nlarge_fit <- vector(mode="list", length = length(sim_nlarge))
-		bloated_fit <- vector(mode="list", length = length(sim_bloated))
-
-system.time({
-			for (i in 1:30){
+			for (i in 1:nsim){
 				unbiased_fit[[i]] <- vbgm_stan_fn(sim_unbiased[[i]], par=sim_unbiased[[i]]$par, model="t0")			
 				nsmall_fit[[i]] <- vbgm_stan_fn(sim_nsmall[[i]], par=sim_nsmall[[i]]$par, model="t0")
 				nlarge_fit[[i]] <- vbgm_stan_fn(sim_nlarge[[i]], par=sim_nlarge[[i]]$par, model="t0")
 				bloated_fit[[i]] <- vbgm_stan_fn(sim_bloated[[i]], par=sim_bloated[[i]]$par, model="t0")
-			}	
+			}
+			results <- list("unbiased_sim"=sim_unbiased, "nsmall_sim"=sim_nsmall, "nlarge_sim"=sim_nlarge, "bloated_sim"=sim_bloated,"unbiased"=unbiased_fit, "nsmall"=nsmall_fit, "nlarge"=nlarge_fit, "bloated"=bloated_fit)        
+			return(results)	
 	})
-
-	results <- c(sim_unbiased=sim_unbiased,sim_nsmall=sim_nsmall,sim_nlarge=sim_nlarge,sim_bloated=sim_bloated,unbiased_fit=unbiased_fit,nsmall_fit=nsmall_fit,nlarge_fit=nlarge_fit,bloated_fit=bloated_fit)
-	return(results)
 }
 
-save(sim_unbiased,sim_nsmall,sim_nlarge,sim_bloated,unbiased_fit,nsmall_fit,nlarge_fit,bloated_fit, file = "scenarios_200_10.Rdata")
+scenarios <- scenarios_fit(reps=5,nobs=100)
+save(scenarios, file=paste0("scenarios_",substr(Sys.time(),1,10),".Rdata"))
