@@ -1,8 +1,8 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #                                                     #
-#    		   Age-growth Bias Simulator              #         
-#		                                              #
+#    		   Age-growth Bias Simulator          #         
+#		                                      #
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -13,47 +13,40 @@
 #		Simulation
 ###-----------------------------------------------------
 	
-	library(truncnorm)
-	library(mvtnorm)
-	library(rstan)
-	library(foreach)
-	library(parallel)
-	library(doParallel)  
-	options(mc.cores = parallel::detectCores())
-	rstan_options(auto_write = TRUE)
+library(truncnorm)
+library(mvtnorm)
+library(rstan)
+library(foreach)
+library(parallel)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
 
-	setwd("/Users/fabiocaltabellotta/Documents/Projects/Age_Growth_Bias/")
-	source("age_simulator_fn.R", local = FALSE)
-	source("growth_stan_model.R", local = FALSE)
-	source("vbgm_stan_fn_true.R", local=FALSE)
-	source("vbgm_stan_fn_df.R", local=FALSE)
-
-	###-----------------------------------------------------
+setwd("/Users/fabiocaltabellotta/Documents/Projects/Age_Growth_Bias/")
+source("age_simulator_fn.R", local = FALSE)
+source("growth_stan_model.R", local = FALSE)
+source("vbgm_stan_fn.R", local=FALSE)
+###-----------------------------------------------------
 	
-	# true growth parameters
+# true growth parameters
 
-	Linf = 64.0831
-	K = 0.0649209
-	t0 = -1.22137
+Linf = 64.0831
+K = 0.0649209
+t0 = -1.22137
 
-	par = c(Linf, K, t0)
+par = c(Linf, K, t0)
 
-	# number of ages
+# number of ages
 	
-	nage = 118
-	ages = 0:(nage-1)
+nage = 118
+ages = 0:(nage-1)
 
-	#----------------------------------------------------
-	#		        Simulating Scenarios
-	#-----------------------------------------------------
+#----------------------------------------------------
+#		Simulating Scenarios
+#-----------------------------------------------------
 
-	#no_cores <- detectCores()  
-	#cl <- makeCluster(no_cores, type="FORK")  
-	#registerDoParallel(cl) 
 
-#scenario <- function(nobs=nobs){ 
-	#system.time({
-	
+scenario <- function(nobs=nobs){ 
+	system.time({
 	sim_unbiased <- foreach(sigma=rep(c(0.02,0.05,0.10),10)) %do% age_sim(sel_l50 = c(0,1),
 						  nobs = 200,
 						  slope1 = 1, 
@@ -116,9 +109,8 @@ system.time({
 			}	
 	})
 
-	#results <- c(sim_unbiased=sim_unbiased,sim_nsmall=sim_nsmall,sim_nlarge=sim_nlarge,sim_bloated=sim_bloated,unbiased_fit=unbiased_fit,nsmall_fit=nsmall_fit,nlarge_fit=nlarge_fit,bloated_fit=bloated_fit)
-	#return(results)
-	#save(results, file = "results.Rdata")
-#}
+	results <- c(sim_unbiased=sim_unbiased,sim_nsmall=sim_nsmall,sim_nlarge=sim_nlarge,sim_bloated=sim_bloated,unbiased_fit=unbiased_fit,nsmall_fit=nsmall_fit,nlarge_fit=nlarge_fit,bloated_fit=bloated_fit)
+	return(results)
+}
 
-	save(sim_unbiased,sim_nsmall,sim_nlarge,sim_bloated,unbiased_fit,nsmall_fit,nlarge_fit,bloated_fit, file = "scenarios_200_10.Rdata")
+save(sim_unbiased,sim_nsmall,sim_nlarge,sim_bloated,unbiased_fit,nsmall_fit,nlarge_fit,bloated_fit, file = "scenarios_200_10.Rdata")
